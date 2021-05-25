@@ -47,10 +47,10 @@ class Pipe:
         :param y: integer, y-positiion of the pipe
         """
 
-        # Set the x-position of the pipe
+        # Set the x-position of the pipe to the left of the image
         self.rect.left = x
 
-        # Set the y-position of the pipe
+        # Set the y-position of the pipe image
         self.rect.top = y
 
     def move_position(self, dx, dy):
@@ -60,10 +60,10 @@ class Pipe:
         :param dy: integer, number to move the pipe in vertical direction (y-position)
         """
 
-        # Update the x-position of the pipe
+        # Update the x-position of the pipe image
         self.rect.centerx += dx
 
-        # Update the y-position of the pipe
+        # Update the y-position of the pipe image
         self.rect.centery += dy
 
     def draw(self):
@@ -98,7 +98,7 @@ class Pipe:
             self.check_status()
 
 
-class PipeCollection():
+class PipeCollection:
     """ Object to store information of new pipes
     """
 
@@ -110,37 +110,70 @@ class PipeCollection():
 
         # Set the display width and height
         self.gameDisplay = gameDisplay
+
         # Store created pipes
-        self.pipes = [] #list of pipes
+        self.pipes = []
 
-    def add_new_pipe_pair(self, x): #Add a new pair (UPPER and LOWER) of pipes
-        top_y = random.randint(PIPE_MIN, PIPE_MAX - PIPE_GAP_SIZE) #Choose a random position between the boundaries and define the position for the upper pipe
-        bottom_y = top_y + PIPE_GAP_SIZE #define position lower pipe
+    def add_new_pipe_pair(self, x):
+        """ Function to add a new pair (upper and lower) of pipes
 
-        p1 = Pipe(self.gameDisplay, x, top_y, PIPE_UPPER) #Tie the properties of the pipes together
+        :param x: integer, width of the game display
+        """
+
+        # Choose a random position between the boundaries and define the y-position for the upper pipe
+        top_y = random.randint(PIPE_MIN, PIPE_MAX - PIPE_GAP_SIZE)
+        # Define teh y-position of the lower pipe
+        bottom_y = top_y + PIPE_GAP_SIZE
+
+        # Tie the properties of the pipes together
+        p1 = Pipe(self.gameDisplay, x, top_y, PIPE_UPPER)
         p2 = Pipe(self.gameDisplay, x, bottom_y, PIPE_LOWER)
 
-        self.pipes.append(p1) #Create the new pipes
+        # Create the new pipes
+        self.pipes.append(p1)
         self.pipes.append(p2)
 
-    def create_new_set(self): #Only called in every new game
-        self.pipes = [] #clear the pipe list
+    def create_new_set(self):
+        """ Function to fill every new game with pipe pairs
+        """
+
+        # Clear the pipe list
+        self.pipes = []
+        # Define the x-position of the first pipe
         placed = PIPE_FIRST
 
-        while placed < DISPLAY_W: #As long as there is room left on the right
-            self.add_new_pipe_pair(placed) #add new pipes
-            placed += PIPE_ADD_GAP #and look for the position more to the right
+        # As long as there is room left on the right of the display to place pipes
+        while placed < DISPLAY_W:
+            # Add a new pipe pair
+            self.add_new_pipe_pair(placed)
+            # Update x-position for a potential new pipe
+            placed += PIPE_ADD_GAP
 
     def update(self, dt):
+        """ Function to update the drawn pipes
+
+        :param dt: integer, time movement in milliseconds
+        """
+
+        # Define th x-position of the pipe
         rightmost = 0
 
-        for p in self.pipes: #for every pipe in the list
+        # For every pipe in the list
+        for p in self.pipes:
+            # Update the drawn position of the pipe
             p.update(dt)
-            if p.pipe_type == PIPE_UPPER: #only look at the upper pipe
-                if p.rect.left > rightmost: #look for the most right pipe
-                    rightmost = p.rect.left #The position of the pipe is the left side of the image
 
-        if rightmost < (DISPLAY_W - PIPE_ADD_GAP): #If the most right pair of pipes had enough room to its right
-            self.add_new_pipe_pair(DISPLAY_W) #spawn new pipes
+            # Only check upper pipes
+            if p.pipe_type == PIPE_UPPER:
+                # Look for the most right pipe
+                if p.rect.left > rightmost:
+                    # The position of the pipe is the left side of the image
+                    rightmost = p.rect.left
 
-        self.pipes = [p for p in self.pipes if p.state == PIPE_MOVING] #remove pipe pairs that are not moving
+        # If the most right pair of pipes had enough room to its right
+        if rightmost < (DISPLAY_W - PIPE_ADD_GAP):
+            # Spawn new pipes
+            self.add_new_pipe_pair(DISPLAY_W)
+
+        # Remove pipe pairs from the list that are not moving
+        self.pipes = [p for p in self.pipes if p.state == PIPE_MOVING]
