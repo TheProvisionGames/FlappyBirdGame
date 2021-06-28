@@ -108,9 +108,9 @@ class Bird:
         """
 
         # For every pipe in the list
-        for p in pipes:
+        for pipe in pipes:
             # When the bird collides with a pipe
-            if p.rect.colliderect(self.rect):
+            if pipe.rect.colliderect(self.rect):
                 # Set the bird status as dead and stop the loop
                 self.state = BIRD_DEAD
                 break
